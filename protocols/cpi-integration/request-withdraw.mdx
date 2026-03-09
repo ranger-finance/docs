@@ -1,6 +1,6 @@
 ---
 title: Request Withdraw
-description: CPI instruction to initiate a withdrawal from a Voltr vault
+description: CPI instruction to initiate a withdrawal from a Ranger Earn vault
 ---
 
 The `request_withdraw_vault` instruction initiates a withdrawal by transferring the user's LP tokens into an escrow receipt account. This is the first step of the two-step withdrawal process.
@@ -32,7 +32,7 @@ fn get_request_withdraw_vault_discriminator() -> [u8; 8] {
 |---|---|---|---|
 | `payer` | Mutable | Yes | Pays rent for the receipt account |
 | `user_transfer_authority` | Immutable | Yes | The user requesting the withdrawal |
-| `protocol` | Immutable | No | Global Voltr protocol state account |
+| `protocol` | Immutable | No | Global Ranger Earn protocol state account |
 | `vault` | Immutable | No | The vault to withdraw from |
 | `vault_lp_mint` | Immutable | No | The vault's LP mint |
 | `user_lp_ata` | Mutable | No | The user's LP token account (source) |
@@ -110,4 +110,4 @@ impl<'info> RequestWithdrawVaultParams<'info> {
 The `request_withdraw_vault_receipt` PDA is derived from seeds `["request_withdraw_vault_receipt", vault_key, user_key]`. This means each user can have one active withdrawal request per vault at a time.
 </Info>
 
-Full reference implementation: [request_withdraw_vault.rs](https://github.com/voltrxyz/vault-cpi/blob/main/references/request_withdraw_vault.rs)
+Full reference implementation: [request_withdraw_vault.rs](https://github.com/ranger-finance/vault-cpi/blob/main/references/request_withdraw_vault.rs)

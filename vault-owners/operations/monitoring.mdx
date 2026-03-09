@@ -1,15 +1,15 @@
 ---
 title: Monitoring & API
-description: Monitor vault performance and health using the Voltr API and SDK
+description: Monitor vault performance and health using the Ranger Earn API and SDK
 ---
 
 <Info>
 API services are only available for indexed vaults. Reach out to the team if your vault should be enabled.
 </Info>
 
-## API First For Dashboards
+## Ranger Earn API
 
-The Voltr API is the recommended source for read-heavy dashboards and user-facing monitoring.
+The Ranger Earn API provides read-only endpoints for querying vault data. This is the recommended approach for monitoring and user-facing applications.
 
 - Base URL: `https://api.voltr.xyz`
 - API docs: [api.voltr.xyz/docs](https://api.voltr.xyz/docs)
@@ -64,14 +64,19 @@ const lpBreakdown = await getVaultLpSupplyBreakdown(rpc, vault);
 const positions = await getPositionAndTotalValuesForVault(rpc, vault);
 ```
 
+<Tip>
+**API for reads, SDK for writes**: Use the Ranger Earn API for monitoring, dashboards, and user-facing queries. Use the SDK for manager/admin operations that require signing transactions.
+</Tip>
+
 ## Best Practice Split
 
 | Use Case | Recommended Source |
 |---|---|
-| user-facing dashboards | Voltr API |
-| historical analytics | Voltr API |
-| real-time operational checks | SDK |
-| automation and bots | SDK |
+| Dashboard / UI showing vault data | Ranger Earn API |
+| Monitoring vault APY over time | Ranger Earn API |
+| User deposit/withdraw UI | Ranger Earn API |
+| Checking fees before harvesting | SDK (real-time) |
+| Automation scripts (rebalancing) | SDK |
 
 ## What To Alert On
 

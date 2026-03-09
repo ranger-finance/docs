@@ -21,7 +21,9 @@ Use a stable Solana RPC endpoint. Typical providers:
 - [Triton](https://triton.one)
 - [QuickNode](https://quicknode.com)
 
-## 3. Separate Admin And Manager Keypairs
+## 3. Admin and Manager Keypairs
+
+Ranger Earn enforces role separation between admin and manager:
 
 | Role | Responsibilities |
 |---|---|
@@ -32,7 +34,9 @@ Use a stable Solana RPC endpoint. Typical providers:
 Use separate keypairs. The admin controls vault structure; the manager controls day-to-day capital movement.
 </Warning>
 
-## 4. SDK Dependencies
+## 4. Ranger Earn SDK & Dependencies
+
+Install the SDK and required libraries:
 
 ```bash
 npm install @voltr/vault-sdk @solana/kit

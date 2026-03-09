@@ -1,9 +1,9 @@
 ---
 title: API Overview
-description: Voltr REST API for querying vault data and building transactions
+description: Ranger Earn REST API for querying vault data and building transactions
 ---
 
-Welcome to the Voltr REST API. This API provides developers with the tools to query on-chain and off-chain vault data, calculate metrics, and construct transactions for interacting with Voltr vaults.
+Welcome to the Ranger Earn REST API. This API provides developers with the tools to query on-chain and off-chain vault data, calculate metrics, and construct transactions for interacting with Ranger Earn vaults.
 
 ## Base URL
 
@@ -11,11 +11,11 @@ All API endpoints are relative to: `https://api.voltr.xyz`
 
 ## Authentication
 
-The Voltr API is public and does not require an API key for access.
+The Ranger Earn API is public and does not require an API key for access.
 
 ## Key Concept: Transaction Building
 
-A critical feature of the Voltr API is its approach to transaction creation. Instead of executing transactions on the server, the API **builds and returns an unsigned, serialized versioned transaction** as a base58 encoded string.
+A critical feature of the Ranger Earn API is its approach to transaction creation. Instead of executing transactions on the server, the API **builds and returns an unsigned, serialized versioned transaction** as a base58 encoded string.
 
 This design ensures that user private keys are never required on the backend, maintaining a non-custodial and secure user experience.
 

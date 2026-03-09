@@ -1,6 +1,6 @@
 ---
 title: Key Participants
-description: Understand the roles and permissions in the Voltr ecosystem
+description: Understand the roles and permissions in the Ranger Earn ecosystem
 ---
 
 ## Users
@@ -13,7 +13,7 @@ Users deposit assets into vaults to earn yield:
 - Track their positions and yields through LP token value
 
 <Card title="User Guide" icon="arrow-right" href="/users/overview">
-  Learn how to use Voltr vaults
+  Learn how to use Ranger Earn vaults
 </Card>
 
 ## Vault Managers
@@ -28,7 +28,7 @@ Vault managers create, configure, and operate vaults. They handle both the struc
 - Run automation bots and monitor performance
 
 <Info>
-Voltr enforces role separation between **admin** (vault structure and configuration) and **manager** (fund allocation). These should be separate keypairs for security. See [Vault Manager Overview](/vault-owners/overview) for details.
+Ranger Earn enforces role separation between **admin** (vault structure and configuration) and **manager** (fund allocation). These should be separate keypairs for security. See [Vault Manager Overview](/vault-owners/overview) for details.
 </Info>
 
 <CardGroup cols={2}>
@@ -42,7 +42,7 @@ Voltr enforces role separation between **admin** (vault structure and configurat
 
 ## Yield Protocols
 
-DeFi protocols that want their yield strategies accessible through Voltr vaults by building custom adaptors:
+DeFi protocols that want their yield strategies accessible through Ranger Earn vaults by building custom adaptors:
 
 - Develop adaptors that wrap protocol-specific interactions
 - Define deposit, withdraw, and initialization logic
@@ -55,7 +55,7 @@ DeFi protocols that want their yield strategies accessible through Voltr vaults 
 
 ## Composing Protocols
 
-Protocols that build new DeFi primitives on top of Voltr vaults via Cross-Program Invocation (CPI):
+Protocols that build new DeFi primitives on top of Ranger Earn vaults via Cross-Program Invocation (CPI):
 
 - Deposit into and withdraw from vaults programmatically on-chain
 - Build derivatives such as junior/senior tranching
@@ -69,7 +69,7 @@ Protocols that build new DeFi primitives on top of Voltr vaults via Cross-Progra
 ## Interaction Flow
 
 <Steps>
-  <Step title="Yield Protocols create adaptors to bring their strategies into Voltr" />
+  <Step title="Yield Protocols create adaptors to bring their strategies into Ranger Earn" />
   <Step title="Vault Managers set up vaults, connect adaptors, and configure parameters" />
   <Step title="Users deposit into vaults and earn yield via LP tokens" />
   <Step title="Vault Managers allocate funds across strategies and rebalance" />

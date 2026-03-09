@@ -31,7 +31,7 @@ fn get_instant_withdraw_vault_discriminator() -> [u8; 8] {
 | Account | Mutability | Signer | Description |
 |---|---|---|---|
 | `user_transfer_authority` | Immutable | Yes | The user withdrawing assets |
-| `protocol` | Immutable | No | Global Voltr protocol state account |
+| `protocol` | Immutable | No | Global Ranger Earn protocol state account |
 | `vault` | Mutable | No | The vault state account |
 | `vault_asset_mint` | Immutable | No | The mint of the asset being withdrawn |
 | `vault_lp_mint` | Mutable | No | The vault's LP mint |
@@ -116,4 +116,4 @@ impl<'info> InstantWithdrawVaultParams<'info> {
 The `instant_withdraw_vault` instruction shares the same parameters as [`request_withdraw_vault`](/protocols/cpi-integration/request-withdraw) but does not create a receipt account. The LP burn and asset transfer happen atomically in a single transaction.
 </Info>
 
-Full reference implementation: [instant_withdraw_vault.rs](https://github.com/voltrxyz/vault-cpi/blob/main/references/instant_withdraw_vault.rs)
+Full reference implementation: [instant_withdraw_vault.rs](https://github.com/ranger-finance/vault-cpi/blob/main/references/instant_withdraw_vault.rs)

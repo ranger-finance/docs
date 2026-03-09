@@ -55,7 +55,7 @@ The exact `strategy`, discriminator, and remaining accounts are adaptor-specific
 
 | Protocol / Adaptor | Initialization Repos |
 |---|---|
-| Kamino | `voltr-kamino-scripts` |
-| Jupiter spot and lend | `voltr-spot-scripts` |
-| Trustful | `voltr-trustful-scripts` |
-| Drift / other adaptors | corresponding maintained script repo |
+| Kamino Adaptor | [Kamino Vault](https://github.com/ranger-finance/kamino-scripts/blob/main/src/scripts/manager-initialize-kvault.ts), [Kamino Lending Market](https://github.com/ranger-finance/kamino-scripts/blob/main/src/scripts/manager-initialize-market.ts) |
+| Drift Adaptor | [Drift Lend](https://github.com/ranger-finance/drift-scripts/blob/main/src/scripts/manager-init-earn.ts), [Drift Perps](https://github.com/ranger-finance/drift-scripts/blob/main/src/scripts/manager-init-user.ts) |
+| Jupiter Adaptor | [Spot via Jupiter Swap](https://github.com/ranger-finance/spot-scripts/blob/main/src/scripts/manager-initialize-spot.ts), [Jupiter Lend](https://github.com/ranger-finance/spot-scripts/blob/main/src/scripts/manager-initialize-earn.ts) |
+| Trustful Adaptor | [Centralised Exchanges](https://github.com/ranger-finance/trustful-scripts/blob/main/src/scripts/manager-initialize-arbitrary.ts) |

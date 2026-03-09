@@ -1,12 +1,12 @@
 ---
 title: CPI Integration Guide
-description: Cross-Program Invocation integration with Voltr vaults
+description: Cross-Program Invocation integration with Ranger Earn vaults
 ---
 
-This guide covers Cross-Program Invocation (CPI) integration with the Voltr Vault program. If your protocol needs to deposit into or withdraw from Voltr vaults on-chain, use these CPI instructions.
+This guide covers Cross-Program Invocation (CPI) integration with the Ranger Earn Vault program. If your protocol needs to deposit into or withdraw from Ranger Earn vaults on-chain, use these CPI instructions.
 
 <Info>
-**When to use CPI vs. the TypeScript SDK**: CPI is for on-chain programs that need to interact with Voltr vaults programmatically (e.g., a router or aggregator). If you are building off-chain automation or a frontend, use the [TypeScript SDK](https://voltrxyz.github.io/vault-sdk/) instead.
+**When to use CPI vs. the TypeScript SDK**: CPI is for on-chain programs that need to interact with Ranger Earn vaults programmatically (e.g., a router or aggregator). If you are building off-chain automation or a frontend, use the [TypeScript SDK](https://ranger-finance.github.io/vault-sdk/) instead.
 </Info>
 
 ## How It Works
@@ -46,7 +46,7 @@ Instant Withdraw: LP Tokens ──► Assets to User (single transaction)
 
 ## PDA Derivation
 
-All PDAs are derived from the Voltr Vault program (`vVoLTRjQmtFpiYoegx285Ze4gsLJ8ZxgFKVcuvmG1a8`):
+All PDAs are derived from the Ranger Earn Vault program (`vVoLTRjQmtFpiYoegx285Ze4gsLJ8ZxgFKVcuvmG1a8`):
 
 | Account | Seeds |
 |---|---|
@@ -56,12 +56,12 @@ All PDAs are derived from the Voltr Vault program (`vVoLTRjQmtFpiYoegx285Ze4gsLJ
 | `request_withdraw_vault_receipt` | `["request_withdraw_vault_receipt", vault_key, user_key]` |
 
 <Warning>
-Your program does **not** need to provide PDA signer seeds for the vault's internal PDAs. The Voltr Vault program handles its own `invoke_signed` calls internally. You only need to pass the correct PDA addresses in the account list.
+Your program does **not** need to provide PDA signer seeds for the vault's internal PDAs. The Ranger Earn Vault program handles its own `invoke_signed` calls internally. You only need to pass the correct PDA addresses in the account list.
 </Warning>
 
 ## Error Handling
 
-Your program should handle the following errors from the Voltr Vault program:
+Your program should handle the following errors from the Ranger Earn Vault program:
 
 | Error | Cause |
 |---|---|
@@ -73,4 +73,4 @@ Your program should handle the following errors from the Voltr Vault program:
 
 ## Reference Repository
 
-Full reference implementations are available at [github.com/voltrxyz/vault-cpi](https://github.com/voltrxyz/vault-cpi).
+Full reference implementations are available at [github.com/ranger-finance/vault-cpi](https://github.com/ranger-finance/vault-cpi).

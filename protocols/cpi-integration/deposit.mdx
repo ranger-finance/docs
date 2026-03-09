@@ -1,9 +1,9 @@
 ---
 title: Deposit
-description: CPI instruction to deposit assets into a Voltr vault
+description: CPI instruction to deposit assets into a Ranger Earn vault
 ---
 
-The `deposit_vault` instruction deposits assets into a Voltr vault and mints LP tokens to the depositor.
+The `deposit_vault` instruction deposits assets into a Ranger Earn vault and mints LP tokens to the depositor.
 
 ## Discriminator
 
@@ -25,7 +25,7 @@ fn get_deposit_vault_discriminator() -> [u8; 8] {
 | Account | Mutability | Signer | Description |
 |---|---|---|---|
 | `user_transfer_authority` | Immutable | Yes | The user depositing assets |
-| `protocol` | Immutable | No | Global Voltr protocol state account |
+| `protocol` | Immutable | No | Global Ranger Earn protocol state account |
 | `vault` | Mutable | No | The target vault state account |
 | `vault_asset_mint` | Immutable | No | The mint of the asset being deposited |
 | `vault_lp_mint` | Mutable | No | The vault's LP mint |
@@ -103,7 +103,7 @@ impl<'info> DepositVaultParams<'info> {
 ```
 
 <Info>
-The `user_transfer_authority` must sign the transaction. The vault's internal PDAs (`vault_asset_idle_auth`, `vault_lp_mint_auth`) are signed by the Voltr Vault program during the CPI — your program does not need to provide their seeds.
+The `user_transfer_authority` must sign the transaction. The vault's internal PDAs (`vault_asset_idle_auth`, `vault_lp_mint_auth`) are signed by the Ranger Earn Vault program during the CPI — your program does not need to provide their seeds.
 </Info>
 
-Full reference implementation: [deposit_vault.rs](https://github.com/voltrxyz/vault-cpi/blob/main/references/deposit_vault.rs)
+Full reference implementation: [deposit_vault.rs](https://github.com/ranger-finance/vault-cpi/blob/main/references/deposit_vault.rs)
