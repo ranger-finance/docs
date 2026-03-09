@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Voltr Documentation",
+  "name": "Ranger Earn Documentation",
   "colors": {
-    "primary": "#6366F1",
-    "light": "#818CF8",
-    "dark": "#4F46E5"
+    "primary": "#668060",
+    "light": "#B7E5AD",
+    "dark": "#51664D"
   },
   "favicon": "/favicon.ico",
   "navigation": {
@@ -227,8 +227,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/voltrxyz",
-      "github": "https://github.com/voltrxyz"
+      "x": "https://x.com/ranger_finance",
+      "github": "https://github.com/ranger-finance"
     }
   }
 }
