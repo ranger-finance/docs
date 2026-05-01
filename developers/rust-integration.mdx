@@ -1,0 +1,45 @@
+---
+title: Rust Integration
+description: Rust and CPI integration guidance for Voltr Vault
+---
+
+Rust support is currently centered on CPI and on-chain composition rather than a high-level off-chain client like the TypeScript SDK.
+
+## When To Use Rust
+
+Use Rust when you are:
+
+- composing Voltr inside another on-chain Solana program
+- building program-owned deposit or withdrawal flows
+- needing direct control over account metas and instruction data
+
+For off-chain automation and frontend work, the recommended default remains `@voltr/vault-sdk` with `@solana/kit`.
+
+## Current Rust Surface
+
+The practical Rust integration surface today is the CPI documentation and reference snippets:
+
+- [CPI Integration Overview](/protocols/cpi-integration/index)
+- [Deposit CPI](/protocols/cpi-integration/deposit)
+- [Request Withdraw CPI](/protocols/cpi-integration/request-withdraw)
+- [Withdraw CPI](/protocols/cpi-integration/withdraw)
+- [Instant Withdraw CPI](/protocols/cpi-integration/instant-withdraw)
+- [Cancel Withdraw CPI](/protocols/cpi-integration/cancel-withdraw)
+
+These pages document the required accounts, discriminators, and invocation flow for the vault program.
+
+## Recommended Split
+
+- off-chain bots and frontends: TypeScript SDK v2
+- on-chain composition: Rust CPI wrappers around Voltr instructions
+- mixed systems: keep Rust responsible for CPI boundaries and TypeScript responsible for operational tooling
+
+## CPI Reference Repository
+
+The `voltr-vault-cpi` reference repository is the best starting point for Rust integrations. Use it alongside the Mintlify CPI pages when implementing your own wrappers.
+
+## Notes
+
+- Do not assume older Anchor helper code matches the current SDK surface.
+- Keep PDA derivation and account ordering identical to the documented CPI flows.
+- If a dedicated published Rust client is introduced later, this page should expand to cover crate installation and direct examples.

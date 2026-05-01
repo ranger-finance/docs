@@ -39,8 +39,10 @@ The fastest way to launch a custom vault frontend is to fork the **Voltr Vaults 
 ### Tech Stack
 
 - Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS with shadcn/ui
-- `@voltr/vault-sdk` and `@solana/web3.js` for on-chain interaction
+- `@voltr/vault-sdk` and `@solana/kit` for on-chain interaction
 - All transactions built client-side — no backend required
+
+If a dependency still expects `@solana/web3.js`, keep it in a narrow compatibility layer instead of making it your primary client stack.
 
 ### Quick Start
 

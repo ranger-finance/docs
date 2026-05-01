@@ -3,88 +3,64 @@ title: Running Bots & Scripts
 description: Automate vault operations for optimal performance
 ---
 
-Vault operations require automation for optimal performance.
+Vault operations are operationally manual unless you automate them yourself.
 
 <Warning>
-**You must host your own automation.** Voltr/Ranger does not provide managed bot services. You are responsible for deploying, running, and monitoring your own scripts and bots.
+Voltr does not provide managed bot hosting. You are responsible for deployment, monitoring, and key management.
 </Warning>
 
 ## Why Automation Is Needed
 
 | Task | Why It Needs Automation |
 |---|---|
-| **Rebalancing** | Yield rates change frequently; manual rebalancing misses optimal allocations |
-| **Reward claiming** | Protocol rewards accrue continuously; manual claiming leaves value uncollected |
-| **Reward swapping** | Claimed reward tokens need to be swapped to base asset to compound |
-| **Position monitoring** | Raydium CLMM positions go out-of-range; Drift positions need risk monitoring |
-| **Fee harvesting** | Accumulated fees should be harvested periodically |
+| Rebalancing | Rates and allocations change over time |
+| Reward claiming | Unclaimed rewards leave value idle |
+| Reward swapping | Claimed rewards often need conversion back to base asset |
+| Position monitoring | Strategy-specific health can degrade without alerts |
+| Fee harvesting | Accumulated fees should be collected periodically |
 
 ## Script Repositories
 
 | Repository | Use Case |
 |---|---|
-| [voltrxyz/lend-scripts](https://github.com/voltrxyz/lend-scripts) | Lending strategy init (Project0, Save) |
-| [voltrxyz/kamino-scripts](https://github.com/voltrxyz/kamino-scripts) | Kamino strategy init, rewards claiming |
-| [voltrxyz/drift-scripts](https://github.com/voltrxyz/drift-scripts) | Drift vaults/lend/perps strategy init, position management |
-| [voltrxyz/spot-scripts](https://github.com/voltrxyz/spot-scripts) | Jupiter Swap/Lend strategy init |
-| [voltrxyz/client-raydium-clmm-scripts](https://github.com/voltrxyz/client-raydium-clmm-scripts) | Raydium CLMM strategy init |
-| [voltrxyz/trustful-scripts](https://github.com/voltrxyz/trustful-scripts) | Trustful adaptor strategy init |
-| [voltrxyz/rebalance-bot-template](https://github.com/voltrxyz/rebalance-bot-template) | Production-ready rebalance bot (equal-weight allocation) |
+| `voltr-kamino-scripts` | Kamino strategy init, allocation, reward claiming |
+| `voltr-spot-scripts` | Jupiter spot and lend strategy flows |
+| `voltr-trustful-scripts` | Trustful adaptor strategy flows |
+| other maintained repos | adaptor-specific workflows |
 
-## Rebalance Bot Template
-
-The [rebalance-bot-template](https://github.com/voltrxyz/rebalance-bot-template) is a production-ready bot that handles the core automation tasks listed above. It distributes funds equally across lending strategies on a fixed schedule and includes:
-
-- **Rebalance loop** — equal-weight allocation across all strategies, triggered on interval and on new deposits
-- **Refresh loop** — keeps on-chain receipt values up to date
-- **Harvest fee loop** — collects protocol/admin/manager fees
-- **Claim reward loops** — claims Kamino farm rewards and swaps them back via Jupiter
-
-Supports Drift, Jupiter Lend, Kamino Market, and Kamino Vault strategies out of the box.
-
-```bash
-git clone https://github.com/voltrxyz/rebalance-bot-template.git
-cd rebalance-bot-template
-pnpm install
-cp .env.example .env   # fill in your vault addresses and keypair
-pnpm run build && pnpm start
-```
-
-See the [repository README](https://github.com/voltrxyz/rebalance-bot-template#readme) for full configuration options and Replit deployment instructions.
-
-## Script Structure Example
-
-A basic rebalancing script:
+## Basic Script Shape
 
 ```typescript
-import { VoltrClient } from "@voltr/vault-sdk";
-import { Connection, Keypair } from "@solana/web3.js";
+import { createKeyPairSignerFromBytes, createSolanaRpc } from "@solana/kit";
+import {
+  fetchVault,
+  getPositionAndTotalValuesForVault,
+} from "@voltr/vault-sdk";
 
 async function main() {
-  const connection = new Connection(process.env.RPC_URL!);
-  const client = new VoltrClient(connection);
-
-  const managerKp = Keypair.fromSecretKey(
+  const rpc = createSolanaRpc(process.env.RPC_URL!);
+  const managerSigner = await createKeyPairSignerFromBytes(
     Uint8Array.from(JSON.parse(process.env.MANAGER_KEY!))
   );
 
-  // 1. Check current allocations
-  const vaultData = await client.getVault(vaultPubkey);
-  const idleBalance = vaultData.asset.totalValue;
+  const vaultAccount = await fetchVault(rpc, vaultAddress);
+  const positions = await getPositionAndTotalValuesForVault(rpc, vaultAddress);
 
-  // 2. Check strategy yields (via API or protocol SDKs)
-  // 3. Determine optimal allocation
-  // 4. Execute rebalance transactions
+  // 1. Read idle and deployed balances
+  // 2. Pull strategy-side data
+  // 3. Decide on reallocations
+  // 4. Build strategy deposit/withdraw instructions
 
-  console.log("Rebalance complete");
+  console.log(vaultAccount.data.asset.totalValue, positions.strategies.length);
 }
 
 main().catch(console.error);
 ```
 
-## Key Considerations
+## Operational Requirements
 
-- **Gas budget**: Ensure your manager wallet has enough SOL for all automated transactions. Monitor and top up regularly.
-- **Error handling**: Scripts should handle transaction failures gracefully (retry logic, alerting).
-- **Rate limiting**: Respect RPC provider rate limits. Use exponential backoff on failures.
-- **Idempotency**: Design scripts to be safely re-runnable in case of partial failures.
+- keep manager and admin wallets funded with SOL
+- add retries and alerting
+- respect RPC limits
+- make scripts idempotent where possible
+- keep signing keys isolated from application code

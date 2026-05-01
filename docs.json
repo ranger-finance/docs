@@ -140,7 +140,8 @@
             "group": "SDK",
             "icon": "book",
             "pages": [
-              "developers/sdk-reference"
+              "developers/sdk-reference",
+              "developers/rust-integration"
             ]
           }
         ]

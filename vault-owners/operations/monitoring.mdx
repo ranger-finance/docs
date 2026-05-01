@@ -4,94 +4,79 @@ description: Monitor vault performance and health using the Voltr API and SDK
 ---
 
 <Info>
-API services are only available for indexed vaults. Please reach out to the team to get your vault enabled.
+API services are only available for indexed vaults. Reach out to the team if your vault should be enabled.
 </Info>
 
-## Voltr API
+## API First For Dashboards
 
-The Voltr API provides read-only endpoints for querying vault data. This is the recommended approach for monitoring and user-facing applications.
+The Voltr API is the recommended source for read-heavy dashboards and user-facing monitoring.
 
-**Base URL**: `https://api.voltr.xyz`
+- Base URL: `https://api.voltr.xyz`
+- API docs: [api.voltr.xyz/docs](https://api.voltr.xyz/docs)
 
-**Full documentation**: [api.voltr.xyz/docs](https://api.voltr.xyz/docs)
+## SDK For Real-Time Or Derived Reads
 
-## SDK Query Methods
-
-The SDK provides methods for querying on-chain vault state directly. Use these when you need real-time data or data not available through the API.
+The v2 SDK exposes direct fetchers and extension helpers:
 
 ```typescript
-import { VoltrClient } from "@voltr/vault-sdk";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { createSolanaRpc } from "@solana/kit";
+import {
+  fetchVault,
+  getAccumulatedAdminFeesForVault,
+  getAccumulatedManagerFeesForVault,
+  getCurrentAssetPerLpForVault,
+  getHighWaterMarkForVault,
+  getPositionAndTotalValuesForVault,
+  getVaultLpSupplyBreakdown,
+} from "@voltr/vault-sdk";
 
-const connection = new Connection("your-rpc-url");
-const client = new VoltrClient(connection);
-const vault = new PublicKey("your-vault-address");
+const rpc = createSolanaRpc("your-rpc-url");
+const vault = "your-vault-address" as const;
 ```
 
 ### Vault State
 
 ```typescript
-const vaultData = await client.getVault(vault);
-console.log("Total assets:", vaultData.asset.totalValue.toString());
-console.log("Admin:", vaultData.admin.toBase58());
-console.log("Manager:", vaultData.manager.toBase58());
+const vaultData = await fetchVault(rpc, vault);
+console.log("Total assets:", vaultData.data.asset.totalValue.toString());
+console.log("Admin:", vaultData.data.admin);
+console.log("Manager:", vaultData.data.manager);
 ```
 
-### Fee Information
+### Fee And HWM Data
 
 ```typescript
-const adminFees = await client.getAccumulatedAdminFeesForVault(vault);
-const managerFees = await client.getAccumulatedManagerFeesForVault(vault);
-console.log("Admin fees (LP):", adminFees.toString());
-console.log("Manager fees (LP):", managerFees.toString());
-
-const hwm = await client.getHighWaterMarkForVault(vault);
-console.log("Highest asset per LP:", hwm.highestAssetPerLp);
-console.log("Last updated:", new Date(hwm.lastUpdatedTs * 1000));
+const adminFees = await getAccumulatedAdminFeesForVault(rpc, vault);
+const managerFees = await getAccumulatedManagerFeesForVault(rpc, vault);
+const hwm = await getHighWaterMarkForVault(rpc, vault);
 ```
 
-### Share Price & LP Supply
+### LP Economics
 
 ```typescript
-const assetPerLp = await client.getCurrentAssetPerLpForVault(vault);
-console.log("Current asset per LP:", assetPerLp);
-
-const lpBreakdown = await client.getVaultLpSupplyBreakdown(vault);
-console.log("Circulating LP:", lpBreakdown.circulating.toString());
-console.log("Unharvested fees:", lpBreakdown.unharvestedFees.toString());
-console.log("Unrealised fees:", lpBreakdown.unrealisedFees.toString());
-console.log("Total LP:", lpBreakdown.total.toString());
+const assetPerLp = await getCurrentAssetPerLpForVault(rpc, vault);
+const lpBreakdown = await getVaultLpSupplyBreakdown(rpc, vault);
 ```
 
-## Best Practices
+### Strategy Positions
 
-<Tip>
-**API for reads, SDK for writes**: Use the Voltr API for monitoring, dashboards, and user-facing queries. Use the SDK for manager/admin operations that require signing transactions.
-</Tip>
+```typescript
+const positions = await getPositionAndTotalValuesForVault(rpc, vault);
+```
 
-| Use Case | Recommended |
+## Best Practice Split
+
+| Use Case | Recommended Source |
 |---|---|
-| Dashboard / UI showing vault data | Voltr API |
-| Monitoring vault APY over time | Voltr API |
-| User deposit/withdraw UI | Voltr API |
-| Checking fees before harvesting | SDK (real-time) |
-| Automation scripts (rebalancing) | SDK |
+| user-facing dashboards | Voltr API |
+| historical analytics | Voltr API |
+| real-time operational checks | SDK |
+| automation and bots | SDK |
 
-## What to Monitor
+## What To Alert On
 
-### Key Metrics
-
-- **Share price trend** — is the vault generating positive yield?
-- **Total assets vs. idle assets** — what percentage is deployed vs. idle?
-- **APY** — is performance meeting expectations?
-- **Fee accumulation** — are fees ready to harvest?
-- **Strategy health** — are all strategies performing as expected?
-
-### Alert Triggers
-
-Consider setting up alerts for:
-
-- Share price decreasing (potential loss event)
-- Idle balance dropping below threshold (withdrawal pressure)
-- Strategy returning errors
-- SOL balance running low on admin/manager wallets
+- falling share price
+- unusually high idle balance
+- repeated strategy transaction failures
+- low SOL on admin or manager wallets
+- reward balances not being claimed on schedule

@@ -3,7 +3,7 @@ title: Vault Configuration Updates
 description: Update vault parameters after creation
 ---
 
-After creating a vault, the **admin** can update various configuration parameters. This is useful for adjusting fees, changing deposit caps, or modifying the withdrawal waiting period.
+After creating a vault, the **admin** can update several configuration parameters such as fees, cap, withdrawal settings, and manager authority.
 
 ## What Can Be Updated
 
@@ -12,8 +12,8 @@ After creating a vault, the **admin** can update various configuration parameter
 | Max cap | Yes | Admin |
 | Locked profit degradation duration | Yes | Admin |
 | Withdrawal waiting period | Yes | Admin |
-| Performance fees (admin/manager) | Yes | Admin |
-| Management fees (admin/manager) | Yes | Admin |
+| Performance fees | Yes | Admin |
+| Management fees | Yes | Admin |
 | Issuance fee | Yes | Admin |
 | Redemption fee | Yes | Admin |
 | Manager | Yes | Admin |
@@ -21,133 +21,83 @@ After creating a vault, the **admin** can update various configuration parameter
 | Vault description | No | — |
 | Asset mint | No | — |
 
-<Info>
-Vault name, description, and asset mint are set at creation and **cannot be changed** afterward. Choose carefully during vault creation.
-</Info>
+## Update Via UI
 
-## Update via UI
+The simplest path is the Ranger manage page:
 
-The simplest way to update vault configuration is through the Ranger manage page:
-
-```
+```text
 https://vaults.ranger.finance/manage/<VAULT_PUBKEY>
 ```
 
-Connect with the **admin wallet** and use the configuration update form.
+## Update Via SDK
 
-## Update via SDK
-
-The `createUpdateVaultConfigIx` method updates **one field at a time**. You specify which field to update using the `VaultConfigField` enum and provide the serialized value as a `Buffer`.
+The v2 SDK uses `getUpdateVaultConfigInstructionAsync`, one field at a time.
 
 ```typescript
-import { BN } from "@coral-xyz/anchor";
-import { VoltrClient, VaultConfigField } from "@voltr/vault-sdk";
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  sendAndConfirmTransaction,
-} from "@solana/web3.js";
 import fs from "fs";
+import { createKeyPairSignerFromBytes } from "@solana/kit";
+import {
+  getUpdateVaultConfigInstructionAsync,
+  findVaultLpMintPda,
+  VaultConfigField,
+} from "@voltr/vault-sdk";
 
-// Setup
-const connection = new Connection("your-rpc-url");
-const client = new VoltrClient(connection);
-
-const adminKp = Keypair.fromSecretKey(
+const adminSigner = await createKeyPairSignerFromBytes(
   Uint8Array.from(JSON.parse(fs.readFileSync("/path/to/admin.json", "utf-8")))
 );
-
-const vault = new PublicKey("your-vault-pubkey");
+const vault = "YOUR_VAULT_ADDRESS" as const;
 ```
 
-### Update Max Cap (u64 field)
+### Update A `u64` Field
 
 ```typescript
-const newMaxCap = new BN("18446744073709551615"); // Uncapped (u64 max)
-const data = newMaxCap.toArrayLike(Buffer, "le", 8);
+const data = new Uint8Array(Buffer.alloc(8));
+Buffer.from(data).writeBigUInt64LE(18_446_744_073_709_551_615n, 0);
 
-const updateMaxCapIx = await client.createUpdateVaultConfigIx(
-  VaultConfigField.MaxCap,
+const updateIx = await getUpdateVaultConfigInstructionAsync({
+  admin: adminSigner,
+  vault,
+  field: VaultConfigField.MaxCap,
   data,
-  {
-    vault,
-    admin: adminKp.publicKey,
-  }
-);
-
-await sendAndConfirmTransaction([updateMaxCapIx], connection, [adminKp]);
+});
 ```
 
-### Update a Fee (u16 field)
+### Update A Fee Field
 
 ```typescript
-const newFee = 1500; // 15% in basis points
-const feeData = Buffer.alloc(2);
-feeData.writeUInt16LE(newFee, 0);
+const feeData = new Uint8Array(Buffer.alloc(2));
+Buffer.from(feeData).writeUInt16LE(1_500, 0);
 
-const updateFeeIx = await client.createUpdateVaultConfigIx(
-  VaultConfigField.ManagerPerformanceFee,
-  feeData,
-  {
-    vault,
-    admin: adminKp.publicKey,
-  }
-);
-
-await sendAndConfirmTransaction([updateFeeIx], connection, [adminKp]);
+const updateIx = await getUpdateVaultConfigInstructionAsync({
+  admin: adminSigner,
+  vault,
+  field: VaultConfigField.ManagerPerformanceFee,
+  data: feeData,
+});
 ```
+
+### Management Fee Special Case
+
+For `ManagerManagementFee` and `AdminManagementFee`, append the vault LP mint account to the final instruction accounts:
+
+```typescript
+const [vaultLpMint] = await findVaultLpMintPda({ vault });
+```
+
+The maintained `admin-update-vault-config.ts` scripts show the exact extra-account pattern used in production.
+
+### Update Manager
+
+Manager and pending-admin changes use a 32-byte encoded address as the payload.
+
+## Serialization Reference
+
+| Field Type | Encoding |
+|---|---|
+| `u64` | 8 bytes, little-endian |
+| `u16` | 2 bytes, little-endian |
+| address | 32-byte encoded address |
 
 <Warning>
-**Management fee updates** require passing `vaultLpMint` in the accounts object:
-
-```typescript
-const updateMgmtFeeIx = await client.createUpdateVaultConfigIx(
-  VaultConfigField.ManagerManagementFee,
-  feeData,
-  {
-    vault,
-    admin: adminKp.publicKey,
-    vaultLpMint: client.findVaultLpMint(vault),
-  }
-);
-```
-</Warning>
-
-### Update Manager (PublicKey field)
-
-```typescript
-const newManager = new PublicKey("new-manager-pubkey");
-const managerData = newManager.toBuffer();
-
-const updateManagerIx = await client.createUpdateVaultConfigIx(
-  VaultConfigField.Manager,
-  managerData,
-  {
-    vault,
-    admin: adminKp.publicKey,
-  }
-);
-
-await sendAndConfirmTransaction([updateManagerIx], connection, [adminKp]);
-```
-
-## VaultConfigField Reference
-
-| Field | Data Type | Serialization |
-|---|---|---|
-| `MaxCap` | u64 | `new BN(value).toArrayLike(Buffer, "le", 8)` |
-| `StartAtTs` | u64 | `new BN(value).toArrayLike(Buffer, "le", 8)` |
-| `LockedProfitDegradationDuration` | u64 | `new BN(value).toArrayLike(Buffer, "le", 8)` |
-| `WithdrawalWaitingPeriod` | u64 | `new BN(value).toArrayLike(Buffer, "le", 8)` |
-| `ManagerPerformanceFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `AdminPerformanceFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `ManagerManagementFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `AdminManagementFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `RedemptionFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `IssuanceFee` | u16 | `Buffer.alloc(2); buf.writeUInt16LE(value, 0)` |
-| `Manager` | PublicKey | `new PublicKey("...").toBuffer()` |
-
-<Warning>
-**Be extremely careful** when updating the Manager field. Once transferred, the old keypair loses all manager authority. There is no way to reverse this without the new keypair holder's cooperation.
+Be careful when changing manager authority. Once moved, the old manager key can no longer operate the vault.
 </Warning>
